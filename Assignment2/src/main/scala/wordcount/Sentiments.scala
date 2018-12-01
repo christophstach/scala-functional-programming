@@ -2,10 +2,10 @@ package wordcount
 
 import java.awt.{Color, GridLayout}
 
-import org.jfree.chart.{ChartPanel, JFreeChart}
 import org.jfree.chart.axis.NumberAxis
 import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.renderer.xy.XYDotRenderer
+import org.jfree.chart.{ChartPanel, JFreeChart}
 import org.jfree.data.xy.{XYSeries, XYSeriesCollection}
 import org.jfree.ui.ApplicationFrame
 import org.jfree.util.ShapeUtilities
@@ -13,7 +13,7 @@ import org.jfree.util.ShapeUtilities
 
 /**
   * @author hendrik
-  * modified by akarakochev
+  *         modified by akarakochev
   */
 class Sentiments(sentiFile: String) {
 
@@ -32,7 +32,7 @@ class Sentiments(sentiFile: String) {
     ???
   }
 
-  def getDocumentSplitByPredicate(filename: String, predicate:String=>Boolean): List[(Int, List[String])] = {
+  def getDocumentSplitByPredicate(filename: String, predicate: String => Boolean): List[(Int, List[String])] = {
     ???
   }
 
@@ -58,7 +58,7 @@ class Sentiments(sentiFile: String) {
     result
   }
 
-  def createGraph(data: List[(Int, Double, Double)], xlabel:String="Abschnitt", title:String="Sentiment-Analyse"): Unit = {
+  def createGraph(data: List[(Int, Double, Double)], xlabel: String = "Abschnitt", title: String = "Sentiment-Analyse"): Unit = {
 
     //create xy series
     val sentimentsSeries: XYSeries = new XYSeries("Sentiment-Werte")
@@ -95,7 +95,7 @@ class Sentiments(sentiFile: String) {
     val chart1: JFreeChart = new JFreeChart(plot1)
     val chart2: JFreeChart = new JFreeChart(plot2)
     val frame: ApplicationFrame = new ApplicationFrame(title)
-    frame.setLayout(new GridLayout(2,1))
+    frame.setLayout(new GridLayout(2, 1))
 
     val chartPanel1: ChartPanel = new ChartPanel(chart1)
     val chartPanel2: ChartPanel = new ChartPanel(chart2)

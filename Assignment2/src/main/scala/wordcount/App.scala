@@ -2,7 +2,7 @@ package wordcount
 
 /**
   * @author hendrik
-  * modified by akarakochev
+  *         modified by akarakochev
   */
 object App {
   val sentiAnalyse = new Sentiments("AFINN-112.txt")

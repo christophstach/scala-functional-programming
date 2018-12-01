@@ -1,4 +1,4 @@
-name := "scala-troubled-necessary-mara"
+name := "Beleg1"
 
 version := "0.1"
 
