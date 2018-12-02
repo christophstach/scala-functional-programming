@@ -62,9 +62,13 @@ class Processing {
 
   def countWordsMR(l: List[String]): List[(String, Int)] = {
     //mapReduce[???,???,???](null,null,null,l)
-    mapReduce[String, List[String], List[(String, Int)]](
-      getWords,
-      (acc, curr) => (acc ++ countWords(curr)).groupBy(_._1).map(kv => kv._2.sum),
+
+    mapReduce[String, (String, Int), List[(String, Int)]](
+      word => (word, 1),
+      (acc, curr) => {
+        if (acc.contains(curr)) acc.map(tuple => if (tuple._1 == curr._1) (tuple._1, tuple._2 + curr._2) else tuple)
+        else acc ++ List(curr)
+      },
       List[(String, Int)](),
       l
     )
@@ -80,19 +84,32 @@ class Processing {
     */
 
   def getAllWordsWithIndex(l: List[(Int, String)]): List[(Int, String)] = {
-    ???
+    l.flatMap(numberLineTuple => {
+      getWords(numberLineTuple._2).map(word => {
+        (numberLineTuple._1, word)
+      })
+    })
   }
 
   def createInverseIndex(l: List[(Int, String)]): Map[String, List[Int]] = {
-    ???
+    l.foldLeft(Map[String, List[Int]]())((acc, curr) => {
+      if (acc.contains(curr._2)) acc.updated(curr._2, acc(curr._2) ++ List(curr._1))
+      else acc + (curr._2 -> List(curr._1))
+    })
   }
 
   def orConjunction(words: List[String], invInd: Map[String, List[Int]]): List[Int] = {
-    ???
+    words.map(word => {
+      if (invInd.contains(word)) invInd(word)
+      else List()
+    }).reduceLeft((acc, curr) => acc.union(curr))
   }
 
   def andConjunction(words: List[String], invInd: Map[String, List[Int]]): List[Int] = {
-    ???
+    words.map(word => {
+      if (invInd.contains(word)) invInd(word)
+      else List()
+    }).reduceLeft((acc, curr) => acc.intersect(curr))
   }
 }
 
