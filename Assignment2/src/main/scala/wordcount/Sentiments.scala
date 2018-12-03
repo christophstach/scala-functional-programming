@@ -30,15 +30,61 @@ class Sentiments(sentiFile: String) {
     */
 
   def getDocumentGroupedByCounts(filename: String, wordCount: Int): List[(Int, List[String])] = {
-    ???
+    scala.io.Source.fromFile(
+      getClass.getResource("/" + filename).getPath
+    )
+      .getLines()
+      .flatMap(proc.getWords)
+      .grouped(wordCount)
+      .map(seq => seq.toList)
+      .zipWithIndex
+      .map { case (value, index) => (index + 1, value) }
+      .toList
   }
 
   def getDocumentSplitByPredicate(filename: String, predicate: String => Boolean): List[(Int, List[String])] = {
-    ???
+    scala.io.Source.fromFile(
+      getClass.getResource("/" + filename).getPath
+    )
+      .getLines()
+      .flatMap(proc.getWords)
+      .foldLeft(List[List[String]]()) {
+        case (acc, curr) => {
+
+
+          if (predicate(curr)) {
+            acc ++ List(List())
+          }
+          else if (acc.isEmpty) {
+            //Ignore sentence
+            acc
+          }
+          else {
+            acc.updated(
+              acc.size - 1,
+              acc.last ++ List(curr)
+            )
+          }
+
+        }
+      }
+      .zipWithIndex
+      .map { case (value, index) => (index + 1, value) }
   }
 
   def analyseSentiments(l: List[(Int, List[String])]): List[(Int, Double, Double)] = {
-    ???
+    l.map {
+      case (no, words) => {
+        val wordSentiments = words.map(word => if (sentiments.contains(word)) sentiments(word) else -100)
+        val validSentiments = wordSentiments.filter(wordSentiment => wordSentiment != -100)
+
+        (
+          no,
+          validSentiments.sum.toDouble / validSentiments.size.toDouble,
+          wordSentiments.count(wordSentiment => wordSentiment != -100).toDouble / wordSentiments.size.toDouble
+        )
+      }
+    }
   }
 
   /**

@@ -16,7 +16,6 @@ class SentimentTest extends FunSuite {
   val sentiAnalyse = new Sentiments("AFINN-111.txt")
 
   test("Load Sentiments") {
-
     val sentAccident = sentiAnalyse.sentiments.getOrElse("accident", 0)
     assert(sentAccident == -2)
   }
@@ -51,7 +50,7 @@ class SentimentTest extends FunSuite {
 
   test("test getDocumentSplitByPredicate") {
 
-    val data = sentiAnalyse.getDocumentSplitByPredicate("PredicateMatch.txt", x => x.equals("X"))
+    val data = sentiAnalyse.getDocumentSplitByPredicate("PredicateMatch.txt", x => x.equals("x"))
     val res = List(
       (1, List("lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "suspendisse", "aliquet", "quis", "ligula", "nec", "tristique")),
       (2, List("donec", "augue", "ipsum", "mattis", "et", "elit", "vel", "convallis", "convallis", "dui")),
