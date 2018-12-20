@@ -21,7 +21,7 @@ class Processing {
       .replaceAll("[^A-Za-z]", " ")
       .toLowerCase()
       .split(" ")
-      .filter(w => !w.equals(""))
+      .filterNot(_.isEmpty)
       .toList
   }
 
