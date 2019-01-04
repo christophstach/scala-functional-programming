@@ -1,7 +1,7 @@
 package pagerank
 
 import org.apache.spark.rdd.RDD
-import pagerank.models.Page
+import pagerank.models.{Link, Page}
 
 import scala.annotation.tailrec
 
@@ -59,24 +59,56 @@ object PageRank {
     *
     */
   def computeContributions(ranks: RDD[(String, Double)], links: RDD[(String, Set[String])]): RDD[(String, Double)] = {
-    println(
-      ranks
-        .join(links)
-        .mapValues(l => l._2.toList.length)
-        .collect
-        .toList
+    /*links
+      .map(link => (link._1, if (link._2.nonEmpty) link._2 else Set(link._1)))
+      .join(ranks)
+      .map(link => (link._1, link._2._1.map(l => (l, link._2._2 * 1.0 / link._2._1.toList.length.toDouble))))
+      .map(link => link._2)
+      .flatMap(link => link)
 
-    )
 
-    println(
-      ranks
-        .join(links)
+    .map(x=>{println(x);x})
+
+  .map(x=>{println(x);math.abs(x._2)})
+//     .map(tuplprie => (tuple._1, tuple._2.ceil.toDouble))
+      //.filter(tuple => !(Math.abs(tuple._2) <= 0.1))
+      */
+    /*val contributions = links
+      .map(link => (link._1, if (link._2.nonEmpty) link._2 else Set(link._1)))
+      .join(ranks).values.flatMap { case (urls, rank) =>
+      val size = urls.size
+
+      urls.map(url => (url, rank / size))
+    }*/
+
+
+    /*println(
+      links
+        .map(link => (link._1, if (link._2.nonEmpty) link._2 else Set(link._1)))
+        .fullOuterJoin(ranks).flatMap { case (urls, rank) =>
+        //val size = urls.size
+        urls
+        //urls.map(url => (url, rank / size))
+      }
         .collect()
         .toList
-    )
-    ranks
-      .join(links)
-      .mapValues(l => l._1 / (if (l._2.toList.isEmpty) 1 else l._2.toList.length))
+    )*/
+
+
+    /*ranks.sortBy(_._1)
+      .fullOuterJoin(contributions)
+      .map(v => (v._1, v._2._2))
+      .map(v => (v._1, if (v._2.isEmpty) 0.0 else v._2.get))
+      */
+
+    val rank_arr = ranks.keys.collect()
+    val link_arr = links.values.collect().flatten.toSet
+    links.join(ranks).flatMap {
+      case t if t._2._1.isEmpty => rank_arr.filter((key: String) => key.equals(t._1)).map(link => (link, t._2._2))
+      case t if !t._2._1.intersect(link_arr).contains(t._1) =>
+        t._2._1.flatMap(link => List((link, (1 / t._2._1.size.toDouble) * t._2._2), (t._1, 0.0)))
+      case t => t._2._1.map(link => (link, (1 / t._2._1.size.toDouble) * t._2._2))
+    }
   }
 
   /**
@@ -90,7 +122,7 @@ object PageRank {
     *
     **/
   def computeNewRanksFromContributions(contributions: RDD[(String, Double)], tNorm: Double, t: Double): RDD[(String, Double)] = {
-    ???
+    contributions.reduceByKey((a, b) => a + b).mapValues(c => (c * (1 - t)) + tNorm)
   }
 
   /**
@@ -104,7 +136,7 @@ object PageRank {
     *
     **/
   def computeDifference(ranks: RDD[(String, Double)], newRanks: RDD[(String, Double)]): Double = {
-    ???
+    ranks.join(newRanks).mapValues(x => (x._1 - x._2).abs).values.sum()
   }
 
   /**
@@ -120,7 +152,10 @@ object PageRank {
     * For some examples see the test cases
     */
   def extractLinksFromPages(pages: RDD[Page]): RDD[(String, Set[String])] = {
-    ???
+    val pages_with_titles = pages.map(page => (page.title, page.links.flatMap(link => Set(link.title)).toSet))
+    val pages_without_titles = pages.flatMap(page => page.links.map((link: Link) => (link.title, Set.empty[String])))
+
+    pages_with_titles.union(pages_without_titles).reduceByKey((a, b) => a ++ b)
   }
 
 }
